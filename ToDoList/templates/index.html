@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        body {
+            background-color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2c3e50;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem !important;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+                border-radius: 10px;
+            }
+            
+            .nav-tabs .nav-link {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .form-label {
+                font-size: 0.9rem;
+            }
+            
+            .form-control {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+            
+            .task-item {
+                padding: 0.75rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .task-item > div {
+                width: 100%;
+            }
+            
+            .task-item .btn-danger {
+                margin-top: 0.5rem;
+                width: 100%;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .card-title {
+                font-size: 1.1rem;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            #refreshTasks {
+                width: 100%;
+            }
+        }
+
+        .card {
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: white;
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus {
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 0.2rem rgba(108, 99, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #6c63ff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.2);
+        }
+
+        .task-item {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            justify-content: center;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tabs .nav-link {
+            color: #2c3e50;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-weight: 600;
+            white-space: nowrap;
+            margin: 0 0.5rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #6c63ff;
+            border-bottom: 3px solid #6c63ff;
+            background-color: rgba(108, 99, 255, 0.05);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            transform: scale(1.1);
+        }
+
+        .alert {
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+
+        .alert-success {
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes swipeOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .swipe-out {
+            animation: swipeOut 0.5s ease forwards;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .empty-state p {
+            margin-bottom: 1.5rem;
+            color: #6c757d;
+        }
+
+        .empty-state .btn {
+            padding: 0.35rem 0.75rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            gap: 0.25rem;
+        }
+
+        .empty-state .btn i {
+            font-size: 0.75rem;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Task Manager</h1>
+        
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs mb-4" id="taskTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="add-task-tab" data-bs-toggle="tab" data-bs-target="#add-task" type="button" role="tab">Add Task</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="view-tasks-tab" data-bs-toggle="tab" data-bs-target="#view-tasks" type="button" role="tab">View Tasks</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Add Task Tab -->
+            <div class="tab-pane fade show active" id="add-task" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="taskForm" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <label for="day" class="form-label">Day</label>
+                                <input type="text" class="form-control" id="day" required>
+                                <div class="invalid-feedback">Please enter a day.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="task" class="form-label">Task</label>
+                                <input type="text" class="form-control" id="task" required>
+                                <div class="invalid-feedback">Please enter a task.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Is Done?</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="isDoneYes" name="isDone" value="true" required>
+                                        <label for="isDoneYes">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="isDoneNo" name="isDone" value="false" required>
+                                        <label for="isDoneNo">No</label>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback">Please select if the task is done.</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-plus me-2"></i>Add Task
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Tasks Tab -->
+            <div class="tab-pane fade" id="view-tasks" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="card-title mb-0">All Pending Tasks</h2>
+                            <button id="refreshTasks" class="btn btn-primary">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh
+                            </button>
+                        </div>
+                        <div id="tasksList">
+                            <!-- Tasks will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('taskForm');
+            const tasksList = document.getElementById('tasksList');
+            const refreshButton = document.getElementById('refreshTasks');
+            const toastContainer = document.querySelector('.toast-container');
+            const viewTasksTab = document.getElementById('view-tasks-tab');
+            const viewTasksPane = document.getElementById('view-tasks');
+
+            // Function to show toast
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'toast animate__animated animate__fadeIn';
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+                toast.innerHTML = `
+                    <div class="toast-header">
+                        <i class="fas fa-trash me-2"></i>
+                        <strong class="me-auto">Task Deleted</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                `;
+                toastContainer.appendChild(toast);
+                const bsToast = new bootstrap.Toast(toast, {
+                    autohide: true,
+                    delay: 3000
+                });
+                bsToast.show();
+                toast.addEventListener('hidden.bs.toast', function() {
+                    toast.classList.add('animate__fadeOut');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 500);
+                });
+            }
+
+            // Form validation and submission
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                if (!form.checkValidity()) {
+                    event.stopPropagation();
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                const taskData = {
+                    day: document.getElementById('day').value,
+                    info: {
+                        task: document.getElementById('task').value,
+                        is_done: document.querySelector('input[name="isDone"]:checked').value === 'true'
+                    }
+                };
+
+                // Send data to backend
+                fetch('/user/tasks/addtask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        // Show success message
+                        const successMessage = document.createElement('div');
+                        successMessage.className = 'alert alert-success animate__animated animate__fadeIn';
+                        successMessage.textContent = data.message;
+                        form.parentNode.insertBefore(successMessage, form.nextSibling);
+                        
+                        // Reset form
+                        form.reset();
+                        form.classList.remove('was-validated');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+
+            // Function to load tasks
+            function loadTasks() {
+                fetch('/user/tasks/allpending')
+                    .then(response => response.json())
+                    .then(data => {
+                        tasksList.innerHTML = '';
+                        if (Array.isArray(data) && data.length > 0) {
+                            data.forEach((task, index) => {
+                                const taskElement = document.createElement('div');
+                                taskElement.className = 'task-item animate__animated animate__fadeIn';
+                                taskElement.style.animationDelay = `${index * 0.1}s`;
+                                taskElement.setAttribute('data-day', task.day);
+                                taskElement.setAttribute('data-task', task.task);
+                                taskElement.innerHTML = `
+                                    <div>
+                                        <h5 class="mb-1">${task.day}</h5>
+                                        <p class="mb-1">${task.task}</p>
+                                        <small class="text-muted">Status: ${task.isDone ? 'Completed' : 'Pending'}</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-danger animate__animated animate__pulse animate__infinite animate__slower" onclick="deleteTask('${task.day}', '${task.task}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                `;
+                                tasksList.appendChild(taskElement);
+                            });
+                        } else {
+                            // Show empty state
+                            const emptyState = document.createElement('div');
+                            emptyState.className = 'empty-state animate__animated animate__fadeIn';
+                            emptyState.innerHTML = `
+                                <i class="fas fa-tasks"></i>
+                                <h3>No Tasks Found</h3>
+                                <p>You don't have any tasks yet. Start by adding a new task!</p>
+                                <button class="btn btn-primary" onclick="switchToAddTask()">
+                                    <i class="fas fa-plus"></i>Add Task
+                                </button>
+                            `;
+                            tasksList.appendChild(emptyState);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+
+            // Load tasks on page load and when refresh button is clicked
+            loadTasks();
+            refreshButton.addEventListener('click', loadTasks);
+
+            // Add event listener for tab change
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Load tasks when switching to View Tasks tab
+                    if (this.id === 'view-tasks-tab') {
+                        loadTasks();
+                    }
+                });
+            });
+
+            // Function to delete task
+            window.deleteTask = function(day, taskName) {
+                const taskElement = document.querySelector(`[data-day="${day}"]`);
+                if (taskElement) {
+                    taskElement.classList.add('swipe-out');
+                    setTimeout(() => {
+                        fetch(`/user/tasks/delete/${day}`, {
+                            method: 'PUT'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message) {
+                                showToast(`Task "${taskName}" has been deleted`);
+                                loadTasks(); // Reload tasks after deletion
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }, 500);
+                }
+            };
+
+            // Function to switch to Add Task tab
+            window.switchToAddTask = function() {
+                const addTaskTab = document.getElementById('add-task-tab');
+                const tab = new bootstrap.Tab(addTaskTab);
+                tab.show();
+            };
+        });
+    </script>
+</body>
+</html>
