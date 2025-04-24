@@ -70,7 +70,7 @@ def get_all_pending_tasks():
 
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run()
 
 # @app.route('/user/tasks/pending/<day>', methods = ['GET'])
 # def get_task(day):
