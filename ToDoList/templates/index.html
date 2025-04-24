@@ -250,7 +250,12 @@
         }
 
         .swipe-out {
-            animation: swipeOut 0.5s ease forwards;
+            animation: swipeOut 0.3s ease forwards;
+        }
+
+        .deleting {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .empty-state {
@@ -522,22 +527,33 @@
             window.deleteTask = function(day, taskName) {
                 const taskElement = document.querySelector(`[data-day="${day}"]`);
                 if (taskElement) {
+                    // Add deleting state
+                    taskElement.classList.add('deleting');
+                    
+                    // Start the swipe animation
                     taskElement.classList.add('swipe-out');
-                    setTimeout(() => {
-                        fetch(`/user/tasks/delete/${day}`, {
-                            method: 'PUT'
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.message) {
-                                showToast(`Task "${taskName}" has been deleted`);
+                    
+                    // Send delete request immediately
+                    fetch(`/user/tasks/delete/${day}`, {
+                        method: 'PUT'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            showToast(`Task "${taskName}" has been deleted`);
+                            // Remove the element after animation completes
+                            setTimeout(() => {
+                                taskElement.remove();
                                 loadTasks(); // Reload tasks after deletion
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                    }, 500);
+                            }, 300);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Remove deleting state if there's an error
+                        taskElement.classList.remove('deleting');
+                        taskElement.classList.remove('swipe-out');
+                    });
                 }
             };
 
